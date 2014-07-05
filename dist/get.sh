@@ -5,6 +5,8 @@ udisk=/media/sda1
 
 url=http://app.ydjiao.com
 matrix=matrix
+pack=target
+if [ "$1" == 'dev' ]; then pack=target-dev; fi
 
 if [ ! -h /sd ]; then ln -s "$udisk" "/sd"; fi
 cd "/sd"
@@ -25,19 +27,22 @@ if [ ! -f del.sh ]; then
 wget $url/del.sh -O del.sh
 fi
 
-if [ ! -f target.tar.bz2 ]; then
-wget $url/target.tar.bz2 -O target.tar.bz2
+if [ ! -f $pack.tar.bz2 ]; then
+wget $url/$pack.tar.bz2 -O $pack.tar.bz2
 fi
 
-if [ ! -d target ]; then
-tar jxvf target.tar.bz2
-bin/chown -R $matrix target
-bin/chgrp -R $matrix target
+if [ ! -d $pack ]; then
+mkdir $pack-tmp
+tar jxvf $pack.tar.bz2 -C $pack-tmp
+mv $pack-tmp/target $pack
+rmdir $pack-tmp
+bin/chown -R $matrix $pack
+bin/chgrp -R $matrix $pack
 fi
 
 HOME=/root
 
-bin/chroot target /bin/sh /init.sh 
+bin/chroot $pack /bin/sh /init.sh 
 
 echo
 echo -- welcome back to modou route --
